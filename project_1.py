@@ -63,6 +63,7 @@ def zad4(data):
         elif data['sex'][ind] == 'M':
             data['frequency_male'][ind] = data['number'][ind] / table[data['sex'][ind]][find_year]
 
+    print(data)
     # data.to_csv("data_names.csv")
 
 
@@ -210,7 +211,6 @@ def zad7(data, top_data):
     print('Ilosc imienia ', Mel_1st, ' w 2019: ', table['2019'][Mel_1st])
 
     arr = []
-
     for i in data['year'].unique():
         arr.append(int(i))
 
@@ -238,18 +238,85 @@ def zad7(data, top_data):
     plt.show()
 
 
-def zad10(data):
+def zad8(data):
+    fem = data[data["sex"] == "F"]
+    mel = data[data["sex"] == "M"]
+
+    table3_f = pd.pivot_table(fem, values='number', index=['year', 'name'], aggfunc=np.sum, fill_value=0)
+    table3_f.sort_values(by=["year", "number"], inplace=True, ascending=False)
+
+    table3_m = pd.pivot_table(mel, values='number', index=['year', 'name'], aggfunc=np.sum, fill_value=0)
+    table3_m.sort_values(by=["year", "number"], inplace=True, ascending=False)
+
+    arr_all_f = [f for f in table3_f['number'].groupby(by='year').count()]
+    arr_all_m = [f for f in table3_m['number'].groupby(by='year').count()]
+
+    arr_f, arr_m = [], []
+    ind = 0
+    arr = []
+
+    for i in data['year'].unique():
+        arr.append(int(i))
+        x = table3_f.loc[i]
+        x = x.iloc[0:1000, :]
+        arr_f.append(len(x)*100 / arr_all_f[ind])
+
+        y = table3_m.loc[i]
+        y = y.iloc[0:1000, :]
+        arr_m.append(len(y) * 100 / arr_all_m[ind])
+        ind += 1
+
+    diff_arr = []
+    for i in range(len(arr_f)):
+        diff_arr.append(abs(arr_f[i] - arr_m[i]))
+    ind = diff_arr.index(max(diff_arr))
+
+    print("Najwieksza roznica: ", str(arr[ind]))
+
+    fig, axs = plt.subplots()
+
+    axs.plot(arr, arr_f, 'r')
+    axs.plot(arr, arr_m, 'b')
+    axs.legend(['Female', "Male"], loc='upper right')
+    axs.set_xlim(1880, 2020)
+    axs.set_xticks(np.arange(1880, 2021, 20))
+    axs.yaxis.set_major_formatter(PercentFormatter(decimals=0))
+    axs.grid()
+
+    plt.show()
+
+
+def zad9():
     pass
 
 
+def zad10(data):
+    table = pd.pivot_table(data, values='number', index=['name'], columns=['sex'], aggfunc=np.sum, fill_value=0)
+    names_arr = []
+    f_arr, m_arr = [], []
+
+    for i in table.index:
+        if table['F'][i] > 0 and table['M'][i] > 0:
+            names_arr.append(i)
+            f_arr.append(table['F'][i])
+            m_arr.append(table['M'][i])
+
+    ind_f = f_arr.index(max(f_arr))
+    ind_m = m_arr.index(max(m_arr))
+
+    print('Wszystkie imiona: ', names_arr)
+    print('Najpopularniejsze imie zenskie: ', str(names_arr[ind_f]))
+    print('Najpopularniejsze imie meskie: ', str(names_arr[ind_m]))
+
+
 if __name__ == "__main__":
-    # zad1()
+    # print(zad1())
     # zad2(zad1())
     # zad3(zad1())
     # zad4(zad1())
     # zad5(zad1())
-    # zad6(zad1())
-    zad7(zad1(), zad6(zad1()))
-    # zad8()
+    # print(zad6(zad1()))
+    # zad7(zad1(), zad6(zad1()))
+    # zad8(zad1())
     # zad9()
-    # zad10(zad1())
+    zad10(zad1())
