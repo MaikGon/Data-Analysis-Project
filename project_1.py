@@ -32,6 +32,7 @@ def zad1():
     data = pd.DataFrame(data=pd_list[0])
     arr_years = [f for f in range(len(data))]
     data = data.set_index([pd.Index(arr_years)])
+
     return data
 
 
@@ -309,6 +310,74 @@ def zad10(data):
     print('Najpopularniejsze imie meskie: ', str(names_arr[ind_m]))
 
 
+def zad11():
+    pass
+
+
+def zad12():
+    conn = sqlite3.connect("USA_ltper_1x1.sqlite")
+    c = conn.cursor()
+    arr = []
+    for row in c.execute('SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;'):
+        arr.append(row)
+    conn.close()
+
+    data = pd.DataFrame(data=arr, index=[f for f in range(len(arr))],
+                        columns=['PopName', 'Sex', 'Year', 'Age', 'mx', 'qx', 'ax', 'lx', 'dx', 'LLx', 'Tx', 'ex'])
+
+    return data
+
+
+def zad13():
+    pd_list = []
+
+    with ZipFile('names.zip', 'r') as zippp:
+        for filename in zippp.namelist():
+            if filename.endswith('.txt'):
+                with zippp.open(filename) as file:
+                    frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
+                    if 2017 >= int(filename[3:-4]) >= 1959:
+                        frame['year'] = filename[3:-4]
+
+                        pd_list.append(frame)
+
+                        if len(pd_list) == 2:
+                            new_frame = pd.concat([pd_list[0], pd_list[1]])
+                            pd_list.clear()
+                            pd_list.append(new_frame)
+
+    data = pd.DataFrame(data=pd_list[0])
+    arr_years = [f for f in range(len(data))]
+    data = data.set_index([pd.Index(arr_years)])
+
+    table = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
+
+    conn = sqlite3.connect("USA_ltper_1x1.sqlite")
+    c = conn.cursor()
+    arr = []
+    for row in c.execute('SELECT Year, dx  FROM USA_fltper_1x1 UNION'
+                         ' SELECT Year, dx  FROM USA_mltper_1x1;'):
+        arr.append(row)
+    conn.close()
+
+    data_sql = pd.DataFrame(data=arr, index=[f for f in range(len(arr))], columns=['Year', 'Deaths'])
+    data_sql = data_sql.groupby("Year").sum()
+
+    arr = []
+    for i in data['year'].unique():
+        arr.append(int(i))
+        
+    fig, axs = plt.subplots()
+
+    axs.plot(arr, table["number"] - list(data_sql["Deaths"]), 'g')
+    axs.legend(["Przyrost naturalny"], loc='upper right')
+    axs.set_xlim(1959, 2018)
+    axs.set_xticks(np.arange(1959, 2019, 5))
+    axs.grid()
+
+    plt.show()
+
+
 if __name__ == "__main__":
     # print(zad1())
     # zad2(zad1())
@@ -319,4 +388,8 @@ if __name__ == "__main__":
     # zad7(zad1(), zad6(zad1()))
     # zad8(zad1())
     # zad9()
-    zad10(zad1())
+    # zad10(zad1())
+    # zad11()
+    # zad12()
+    zad13()
+    # zad14(zad1())
