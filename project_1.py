@@ -9,6 +9,7 @@ from statistics import *
 from matplotlib.ticker import PercentFormatter
 from zipfile import ZipFile
 from time import perf_counter
+import math
 
 
 def zad1():
@@ -52,20 +53,16 @@ def zad3(data):
 
 
 def zad4(data):
-    table = pd.pivot_table(data, values='number', index=['name'], columns=['sex'], aggfunc=np.sum, fill_value=0)
-    data['frequency_female'] = 0.0
-    data['frequency_male'] = 0.0
+    fem = data[data["sex"] == "F"].groupby(by='year').sum()
+    mel = data[data["sex"] == "M"].groupby(by='year').sum()
 
-    for ind in range(len(data)):
-        find_year = data['year'][ind]
-        print(data['name'][ind], ' ', find_year)
-        if data['sex'][ind] == 'F':
-            data['frequency_female'][ind] = data['number'][ind] / table[data['sex'][ind]][find_year]
-        elif data['sex'][ind] == 'M':
-            data['frequency_male'][ind] = data['number'][ind] / table[data['sex'][ind]][find_year]
+    data_1 = pd.merge(data, fem, on='year')
+    data_1 = pd.merge(data_1, mel, on='year')
+
+    data['frequency_female'] = (data_1[data_1["sex"] == "F"]['number_x'] / data_1['number_y']).fillna(0.0)
+    data['frequency_male'] = (data_1[data_1["sex"] == "M"]['number_x'] / data_1['number']).fillna(0.0)
 
     print(data)
-    # data.to_csv("data_names.csv")
 
 
 def zad5(data):
@@ -287,8 +284,26 @@ def zad8(data):
     plt.show()
 
 
-def zad9():
-    pass
+def zad9(data):
+    last_names = list(data['name'])
+    for i in range(len(last_names)):
+        last_names[i] = last_names[i][-1]
+
+    data['lastnames'] = last_names
+    data = data.groupby(by=['year', 'sex', 'lastnames']).sum()
+    arr = []
+
+    for i in data.index:
+        if i[0] == '1910' or i[0] == '1960' or i[0] == '2015':
+            new_data = data.loc[i[0]]
+            arr.append(new_data)
+
+    new_frame = pd.concat([arr[0], arr[1], arr[2]])
+    data2 = pd.DataFrame(data=new_frame)
+    print(data2)
+
+    #table = pd.pivot_table(data, values='number', index=['year'], columns=['sex', 'name'], aggfunc=np.sum, fill_value=0)
+    #print(table)
 
 
 def zad10(data):
@@ -317,15 +332,13 @@ def zad11():
 def zad12():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    arr = []
-    for row in c.execute('SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;'):
-        arr.append(row)
+    c.execute('DROP TABLE data')
+    c.execute('DROP TABLE sql_data_12')
+    c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
+    conn.commit()
+    for row in c.execute('SELECT * FROM sql_data_12'):
+        print(row)
     conn.close()
-
-    data = pd.DataFrame(data=arr, index=[f for f in range(len(arr))],
-                        columns=['PopName', 'Sex', 'Year', 'Age', 'mx', 'qx', 'ax', 'lx', 'dx', 'LLx', 'Tx', 'ex'])
-
-    return data
 
 
 def zad13():
@@ -355,8 +368,7 @@ def zad13():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
     arr = []
-    for row in c.execute('SELECT Year, dx  FROM USA_fltper_1x1 UNION'
-                         ' SELECT Year, dx  FROM USA_mltper_1x1;'):
+    for row in c.execute('SELECT Year, dx FROM sql_data_12;'):
         arr.append(row)
     conn.close()
 
@@ -378,6 +390,57 @@ def zad13():
     plt.show()
 
 
+def zad14_15():
+    pd_list = []
+
+    with ZipFile('names.zip', 'r') as zippp:
+        for filename in zippp.namelist():
+            if filename.endswith('.txt'):
+                with zippp.open(filename) as file:
+                    frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
+                    if 2017 >= int(filename[3:-4]) >= 1959:
+                        frame['year'] = filename[3:-4]
+
+                        pd_list.append(frame)
+
+                        if len(pd_list) == 2:
+                            new_frame = pd.concat([pd_list[0], pd_list[1]])
+                            pd_list.clear()
+                            pd_list.append(new_frame)
+
+    data = pd.DataFrame(data=pd_list[0])
+    arr_years = [f for f in range(len(data))]
+    data = data.set_index([pd.Index(arr_years)])
+
+    table = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
+
+    conn = sqlite3.connect("USA_ltper_1x1.sqlite")
+    c = conn.cursor()
+    arr = []
+    for row in c.execute('SELECT Year, dx FROM sql_data_12 WHERE Age = 0;'):
+        arr.append(row)
+    conn.close()
+
+    data_sql = pd.DataFrame(data=arr, index=[f for f in range(len(arr))], columns=['Year', 'Deaths'])
+    data_sql = data_sql.groupby("Year").sum()
+
+    data_sql['wsp'] = (list(table['number']) - data_sql['Deaths']) / list(table['number'])
+
+    arr = []
+    for i in data['year'].unique():
+        arr.append(int(i))
+
+    fig, axs = plt.subplots()
+
+    axs.plot(arr, data_sql['wsp'], 'g')
+    axs.legend(["Wspolczynnik przezywalnosci"], loc='upper right')
+    axs.set_xlim(1959, 2018)
+    axs.set_xticks(np.arange(1959, 2019, 5))
+    axs.grid()
+
+    plt.show()
+
+
 if __name__ == "__main__":
     # print(zad1())
     # zad2(zad1())
@@ -387,9 +450,10 @@ if __name__ == "__main__":
     # print(zad6(zad1()))
     # zad7(zad1(), zad6(zad1()))
     # zad8(zad1())
-    # zad9()
+    zad9(zad1())
     # zad10(zad1())
     # zad11()
     # zad12()
-    zad13()
-    # zad14(zad1())
+    # zad13()
+    #zad14_15()
+
