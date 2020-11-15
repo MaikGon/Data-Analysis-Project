@@ -285,25 +285,74 @@ def zad8(data):
 
 
 def zad9(data):
+    table = pd.pivot_table(data, values='number', index=['year'], columns=['sex'], aggfunc=np.sum, fill_value=0)
+
     last_names = list(data['name'])
     for i in range(len(last_names)):
         last_names[i] = last_names[i][-1]
 
     data['lastnames'] = last_names
-    data = data.groupby(by=['year', 'sex', 'lastnames']).sum()
-    arr = []
+    data = pd.pivot_table(data, index=['year', 'sex', 'lastnames'], aggfunc=np.sum, fill_value=0)
+    arr_f, arr_m = [], []
 
-    for i in data.index:
-        if i[0] == '1910' or i[0] == '1960' or i[0] == '2015':
-            new_data = data.loc[i[0]]
-            arr.append(new_data)
+    for i in ['1910', '1960', '2015']:
+        new_data_f = data.loc[(i, 'F')]
+        new_data_m = data.loc[(i, 'M')]
+        new_data_f['number'] = new_data_f['number'] / table['F'][i]
+        new_data_m['number'] = new_data_m['number'] / table['M'][i]
+        arr_f.append(new_data_f)
+        arr_m.append(new_data_m)
 
-    new_frame = pd.concat([arr[0], arr[1], arr[2]])
-    data2 = pd.DataFrame(data=new_frame)
-    print(data2)
+    final = pd.merge(arr_f[0], arr_f[1], on='lastnames', how='right', suffixes=('_1910_f', '_1960_f'))
+    final = pd.merge(final, arr_f[2], on='lastnames', how='right', suffixes=(None, '_2015_f'))
+    final = pd.merge(final, arr_m[0], on='lastnames', how='right', suffixes=(None, '_1910_m'))
+    final = pd.merge(final, arr_m[1], on='lastnames', how='right', suffixes=(None, '_1960_m'))
+    final = pd.merge(final, arr_m[2], on='lastnames', how='right', suffixes=(None, '_2015_m'))
+    final = final.fillna(0.0)
 
-    #table = pd.pivot_table(data, values='number', index=['year'], columns=['sex', 'name'], aggfunc=np.sum, fill_value=0)
-    #print(table)
+    final['diff'] = abs(final['number_2015_m'] - final['number_1910_m'])
+
+    print('Najwiekszy wzrost/spadek wystapil dla litery: ', str(final[final['diff'] == max(final['diff'])].index[0]))
+
+
+    fig, ax = plt.subplots(2)
+    x = np.arange(len(final))
+    width = 0.1
+
+    ax[0].bar(x - 0.3, final['number_1910_m'], width, label='Man 1910')
+    ax[0].bar(x - 0.2, final['number_1910_f'], width, label='Woman 1910 ')
+    ax[0].bar(x - 0.1, final['number_1960_m'], width, label='Man 1960')
+    ax[0].bar(x + 0.1, final['number_1960_f'], width, label='Woman 1960')
+    ax[0].bar(x + 0.2, final['number_2015_m'], width, label='Man 2015')
+    ax[0].bar(x + 0.3, final['number'], width, label='Woman 2015')
+    ax[0].legend()
+
+    ax[0].set_xticks(x)
+    ax[0].set_xticklabels(final.index)
+    ax[0].tick_params(axis='x')
+
+    # Trend
+    sorted_table = final.sort_values('diff', ascending=False)
+    arr_1, arr_2, arr_3 = [], [], []
+    arr = np.arange(1880, 2020)
+
+    for i in table.index:
+        trend_data_1 = data.loc[(i, 'M', sorted_table.index[0])]
+        trend_data_2 = data.loc[(i, 'M', sorted_table.index[1])]
+        trend_data_3 = data.loc[(i, 'M', sorted_table.index[2])]
+        arr_1.append(trend_data_1['number'])
+        arr_2.append(trend_data_2['number'])
+        arr_3.append(trend_data_3['number'])
+
+    ax[1].plot(arr, arr_1, 'r')
+    ax[1].plot(arr, arr_2, 'g')
+    ax[1].plot(arr, arr_3, 'b')
+    ax[1].legend(['n', 'd', 'e'], loc='upper right')
+    ax[1].set_xlim(1880, 2020)
+    ax[1].set_xticks(np.arange(1880, 2021, 20))
+    ax[1].grid()
+
+    plt.show()
 
 
 def zad10(data):
@@ -442,7 +491,8 @@ def zad14_15():
 
 
 if __name__ == "__main__":
-    # print(zad1())
+    # data_1 = zad1()
+    # print(data_1)
     # zad2(zad1())
     # zad3(zad1())
     # zad4(zad1())
@@ -450,9 +500,9 @@ if __name__ == "__main__":
     # print(zad6(zad1()))
     # zad7(zad1(), zad6(zad1()))
     # zad8(zad1())
-    zad9(zad1())
+    # zad9(zad1())
     # zad10(zad1())
-    # zad11()
+    zad11()
     # zad12()
     # zad13()
     #zad14_15()
