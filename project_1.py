@@ -48,9 +48,6 @@ def zad3(data):
     print("Ilosc unikalnych imion zenskich: ", str(F))
     print("Ilosc unikalnych imion meskich: ", str(M))
 
-    # print(data[data['sex'] == 'M'].groupby(by='name').count()['sex'])
-    # print(data[data['sex'] == 'F'].groupby(by='name').count()['sex'])
-
 
 def zad4(data):
     fem = data[data["sex"] == "F"].groupby(by='year').sum()
@@ -70,10 +67,7 @@ def zad5(data):
     table2 = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
 
     table2['diff'] = table['F'] / table['M']
-    arr = []
-
-    for i in table.index:
-        arr.append(int(i))
+    arr = np.arange(1880, 2020)
 
     fig, axs = plt.subplots(2)
     axs[0].plot(arr, table2['number'], '.r')
@@ -208,10 +202,7 @@ def zad7(data, top_data):
     print('Ilosc imienia ', Mel_1st, ' w 1980: ', table['1980'][Mel_1st])
     print('Ilosc imienia ', Mel_1st, ' w 2019: ', table['2019'][Mel_1st])
 
-    arr = []
-    for i in data['year'].unique():
-        arr.append(int(i))
-
+    arr = np.arange(1880, 2020)
     fig, axs = plt.subplots(2)
 
     axs[0].plot(arr, stacked['Harry'], 'r')
@@ -314,7 +305,6 @@ def zad9(data):
 
     print('Najwiekszy wzrost/spadek wystapil dla litery: ', str(final[final['diff'] == max(final['diff'])].index[0]))
 
-
     fig, ax = plt.subplots(2)
     x = np.arange(len(final))
     width = 0.1
@@ -347,7 +337,7 @@ def zad9(data):
     ax[1].plot(arr, arr_1, 'r')
     ax[1].plot(arr, arr_2, 'g')
     ax[1].plot(arr, arr_3, 'b')
-    ax[1].legend(['n', 'd', 'e'], loc='upper right')
+    ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='upper right')
     ax[1].set_xlim(1880, 2020)
     ax[1].set_xticks(np.arange(1880, 2021, 20))
     ax[1].grid()
@@ -416,18 +406,15 @@ def zad13():
 
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    arr = []
+    arr_sql = []
     for row in c.execute('SELECT Year, dx FROM sql_data_12;'):
-        arr.append(row)
+        arr_sql.append(row)
     conn.close()
 
-    data_sql = pd.DataFrame(data=arr, index=[f for f in range(len(arr))], columns=['Year', 'Deaths'])
+    data_sql = pd.DataFrame(data=arr_sql, index=[f for f in range(len(arr_sql))], columns=['Year', 'Deaths'])
     data_sql = data_sql.groupby("Year").sum()
 
-    arr = []
-    for i in data['year'].unique():
-        arr.append(int(i))
-        
+    arr = np.arange(1959, 2018)
     fig, axs = plt.subplots()
 
     axs.plot(arr, table["number"] - list(data_sql["Deaths"]), 'g')
@@ -465,19 +452,17 @@ def zad14_15():
 
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    arr = []
+    arr_sql = []
     for row in c.execute('SELECT Year, dx FROM sql_data_12 WHERE Age = 0;'):
-        arr.append(row)
+        arr_sql.append(row)
     conn.close()
 
-    data_sql = pd.DataFrame(data=arr, index=[f for f in range(len(arr))], columns=['Year', 'Deaths'])
+    data_sql = pd.DataFrame(data=arr_sql, index=[f for f in range(len(arr_sql))], columns=['Year', 'Deaths'])
     data_sql = data_sql.groupby("Year").sum()
 
     data_sql['wsp'] = (list(table['number']) - data_sql['Deaths']) / list(table['number'])
 
-    arr = []
-    for i in data['year'].unique():
-        arr.append(int(i))
+    arr = np.arange(1959, 2018)
 
     fig, axs = plt.subplots()
 
@@ -505,5 +490,5 @@ if __name__ == "__main__":
     zad11()
     # zad12()
     # zad13()
-    #zad14_15()
+    # zad14_15()
 
