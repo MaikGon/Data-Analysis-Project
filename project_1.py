@@ -371,8 +371,7 @@ def zad11():
 def zad12():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    c.execute('DROP TABLE data')
-    c.execute('DROP TABLE sql_data_12')
+    # c.execute('DROP TABLE sql_data_12')
     c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
     conn.commit()
     for row in c.execute('SELECT * FROM sql_data_12'):
@@ -380,28 +379,7 @@ def zad12():
     conn.close()
 
 
-def zad13():
-    pd_list = []
-
-    with ZipFile('names.zip', 'r') as zippp:
-        for filename in zippp.namelist():
-            if filename.endswith('.txt'):
-                with zippp.open(filename) as file:
-                    frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
-                    if 2017 >= int(filename[3:-4]) >= 1959:
-                        frame['year'] = filename[3:-4]
-
-                        pd_list.append(frame)
-
-                        if len(pd_list) == 2:
-                            new_frame = pd.concat([pd_list[0], pd_list[1]])
-                            pd_list.clear()
-                            pd_list.append(new_frame)
-
-    data = pd.DataFrame(data=pd_list[0])
-    arr_years = [f for f in range(len(data))]
-    data = data.set_index([pd.Index(arr_years)])
-
+def zad13(data):
     table = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
 
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
@@ -426,7 +404,51 @@ def zad13():
     plt.show()
 
 
-def zad14_15():
+def zad14_15(data):
+    # Task 14
+    table = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
+
+    conn = sqlite3.connect("USA_ltper_1x1.sqlite")
+    c = conn.cursor()
+    arr_sql = []
+    for row in c.execute('SELECT Year, dx, Age FROM sql_data_12 WHERE Age >= 0 AND Age <= 4;'):
+        arr_sql.append(row)
+    conn.close()
+
+    data_sql = pd.DataFrame(data=arr_sql, index=[f for f in range(len(arr_sql))], columns=['Year', 'Deaths', 'Age'])
+    data_sql_14 = data_sql[data_sql['Age'] == 0].groupby("Year").sum()
+    data_sql_14['wsp_1'] = (list(table['number']) - data_sql_14['Deaths']) / list(table['number'])
+
+    # Task 15
+    data_sql = data_sql.groupby(["Year", "Age"]).sum()
+
+    arr_5 = []
+    for i in data_sql_14.index:
+        val = 0
+        for j in range(5):
+            try:
+                val += data_sql.loc[pd.IndexSlice[i + j, j], 'Deaths']
+            except:
+                val += 0
+        arr_5.append(val)
+
+    data_sql_14['wsp_5'] = arr_5
+    data_sql_14['wsp_5'] = (list(table['number']) - data_sql_14['wsp_5']) / list(table['number'])
+
+    arr = np.arange(1959, 2018)
+    fig, axs = plt.subplots()
+
+    axs.plot(arr, data_sql_14['wsp_1'], 'r')
+    axs.plot(arr, data_sql_14['wsp_5'], 'g')
+    axs.legend(["Wsp przezywalnosci w 1 roku zycia", "Wsp przezywalnosci w 5 latach zycia"], loc='upper right')
+    axs.set_xlim(1959, 2018)
+    axs.set_xticks(np.arange(1959, 2019, 5))
+    axs.grid()
+
+    plt.show()
+
+
+def data_13_14_15():
     pd_list = []
 
     with ZipFile('names.zip', 'r') as zippp:
@@ -448,47 +470,25 @@ def zad14_15():
     arr_years = [f for f in range(len(data))]
     data = data.set_index([pd.Index(arr_years)])
 
-    table = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
-
-    conn = sqlite3.connect("USA_ltper_1x1.sqlite")
-    c = conn.cursor()
-    arr_sql = []
-    for row in c.execute('SELECT Year, dx FROM sql_data_12 WHERE Age = 0;'):
-        arr_sql.append(row)
-    conn.close()
-
-    data_sql = pd.DataFrame(data=arr_sql, index=[f for f in range(len(arr_sql))], columns=['Year', 'Deaths'])
-    data_sql = data_sql.groupby("Year").sum()
-
-    data_sql['wsp'] = (list(table['number']) - data_sql['Deaths']) / list(table['number'])
-
-    arr = np.arange(1959, 2018)
-
-    fig, axs = plt.subplots()
-
-    axs.plot(arr, data_sql['wsp'], 'g')
-    axs.legend(["Wspolczynnik przezywalnosci"], loc='upper right')
-    axs.set_xlim(1959, 2018)
-    axs.set_xticks(np.arange(1959, 2019, 5))
-    axs.grid()
-
-    plt.show()
+    return data
 
 
 if __name__ == "__main__":
-    # data_1 = zad1()
+    data_1 = zad1() # load data for further tasks
     # print(data_1)
-    # zad2(zad1())
-    # zad3(zad1())
-    # zad4(zad1())
-    # zad5(zad1())
-    # print(zad6(zad1()))
-    # zad7(zad1(), zad6(zad1()))
-    # zad8(zad1())
-    # zad9(zad1())
-    # zad10(zad1())
+    # zad2(data_1)
+    # zad3(data_1)
+    # zad4(data_1)
+    # zad5(data_1)
+    # data_2 = zad6(data_1)
+    # print(data_2)
+    # zad7(data_1, data_2)
+    # zad8(data_1)
+    # zad9(data_1)
+    # zad10(data_1)
     zad11()
     # zad12()
-    # zad13()
-    # zad14_15()
+    # data_3 = data_13_14_15() # load data for further tasks
+    # zad13(data_3)
+    # zad14_15(data_3)
 
