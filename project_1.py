@@ -1,15 +1,10 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import pandasgui
 import sqlite3
-import requests
-import json
-from statistics import *
 from matplotlib.ticker import PercentFormatter
 from zipfile import ZipFile
 from time import perf_counter
-import math
 
 
 def zad1():
@@ -347,25 +342,26 @@ def zad9(data):
 
 def zad10(data):
     table = pd.pivot_table(data, values='number', index=['name'], columns=['sex'], aggfunc=np.sum, fill_value=0)
-    names_arr = []
-    f_arr, m_arr = [], []
+    table = table.loc[(table['F'] > 0) & (table['M'] > 0), :]
+    print(len(table))
+    ind_f = table[table['F'] == max(table['F'])].index[0]
+    ind_m = table[table['M'] == max(table['M'])].index[0]
 
-    for i in table.index:
-        if table['F'][i] > 0 and table['M'][i] > 0:
-            names_arr.append(i)
-            f_arr.append(table['F'][i])
-            m_arr.append(table['M'][i])
-
-    ind_f = f_arr.index(max(f_arr))
-    ind_m = m_arr.index(max(m_arr))
-
-    print('Wszystkie imiona: ', names_arr)
-    print('Najpopularniejsze imie zenskie: ', str(names_arr[ind_f]))
-    print('Najpopularniejsze imie meskie: ', str(names_arr[ind_m]))
+    print('Najpopularniejsze imie zenskie: ', ind_f)
+    print('Najpopularniejsze imie meskie: ', ind_m)
 
 
-def zad11():
-    pass
+def zad11(data):
+    table = pd.pivot_table(data, values='number', index=['name'], columns=['year', 'sex'], aggfunc=np.sum, fill_value=0)
+    for i in range(1880, 2020):
+        table = table.loc[(table[(str(i), 'F')] > 0) & (table[(str(i), 'M')] > 0), :]
+
+    for i in range(1880, 2020):
+        table[(str(i), 'F')] = table[(str(i), 'F')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
+        table[(str(i), 'M')] = table[(str(i), 'M')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
+
+    table = table.fillna(0)
+    #print(table)
 
 
 def zad12():
@@ -374,8 +370,8 @@ def zad12():
     # c.execute('DROP TABLE sql_data_12')
     c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
     conn.commit()
-    for row in c.execute('SELECT * FROM sql_data_12'):
-        print(row)
+    # for row in c.execute('SELECT * FROM sql_data_12'):
+        # print(row)
     conn.close()
 
 
@@ -458,7 +454,6 @@ def data_13_14_15():
                     frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
                     if 2017 >= int(filename[3:-4]) >= 1959:
                         frame['year'] = filename[3:-4]
-
                         pd_list.append(frame)
 
                         if len(pd_list) == 2:
@@ -474,6 +469,7 @@ def data_13_14_15():
 
 
 if __name__ == "__main__":
+    start = perf_counter()
     data_1 = zad1() # load data for further tasks
     # print(data_1)
     # zad2(data_1)
@@ -486,9 +482,11 @@ if __name__ == "__main__":
     # zad8(data_1)
     # zad9(data_1)
     # zad10(data_1)
-    zad11()
+    zad11(data_1)
     # zad12()
     # data_3 = data_13_14_15() # load data for further tasks
     # zad13(data_3)
     # zad14_15(data_3)
+    stop = perf_counter()
+    print('Elapsed time: ', str(stop - start))
 
