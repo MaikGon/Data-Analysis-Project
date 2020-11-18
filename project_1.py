@@ -5,25 +5,25 @@ import sqlite3
 from matplotlib.ticker import PercentFormatter
 from zipfile import ZipFile
 from time import perf_counter
+import os
 
 
 def zad1():
     pd_list = []
 
-    with ZipFile('names.zip', 'r') as zippp:
-        for filename in zippp.namelist():
-            if filename.endswith('.txt'):
-                with zippp.open(filename) as file:
-                    frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
-                    # Dodaj kolumne z rokiem
-                    frame['year'] = filename[3:-4]
-                    pd_list.append(frame)
+    for filename in sorted(os.listdir("names/")):
+        if filename.endswith('.txt'):
+            with open('names/' + str(filename), 'r') as file:
+                frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
+                # Dodaj kolumne z rokiem
+                frame['year'] = filename[3:-4]
+                pd_list.append(frame)
 
-                    # Jesli sa 2 elementy - sklej je
-                    if len(pd_list) == 2:
-                        new_frame = pd.concat([pd_list[0], pd_list[1]])
-                        pd_list.clear()
-                        pd_list.append(new_frame)
+                # Jesli sa 2 elementy - sklej je
+                if len(pd_list) == 2:
+                    new_frame = pd.concat([pd_list[0], pd_list[1]])
+                    pd_list.clear()
+                    pd_list.append(new_frame)
 
     data = pd.DataFrame(data=pd_list[0])
     arr_years = [f for f in range(len(data))]
@@ -62,10 +62,10 @@ def zad5(data):
     table2 = pd.pivot_table(data, values='number', index=['year'], aggfunc=np.sum, fill_value=0)
 
     table2['diff'] = table['F'] / table['M']
-    arr = np.arange(1880, 2020)
+    x = np.arange(1880, 2020)
 
     fig, axs = plt.subplots(2)
-    axs[0].plot(arr, table2['number'], '.r')
+    axs[0].plot(x, table2['number'], '.r')
     axs[0].set_title('Liczba urodzin', fontsize=12)
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2021, 20))
@@ -73,7 +73,7 @@ def zad5(data):
     axs[0].set_ylabel('Wartosc')
     axs[0].grid()
 
-    axs[1].plot(arr, table2['diff'], '.b')
+    axs[1].plot(x, table2['diff'], '.b')
     axs[1].set_title('Stosunek F do M', fontsize=12)
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2021, 20))
@@ -92,9 +92,11 @@ def zad6(data):
     fem = data[data["sex"] == "F"]
     mel = data[data["sex"] == "M"]
 
+    # female pivot
     table3_f = pd.pivot_table(fem, values='number', index=['year', 'name'], aggfunc=np.sum, fill_value=0)
     table3_f.sort_values(by=["year", "number"], inplace=True, ascending=False)
 
+    # male pivot
     table3_m = pd.pivot_table(mel, values='number', index=['year', 'name'], aggfunc=np.sum, fill_value=0)
     table3_m.sort_values(by=["year", "number"], inplace=True, ascending=False)
 
@@ -121,14 +123,12 @@ def zad6(data):
     sorted_f = top_data_f.groupby(by='name').sum().sort_values('number', ascending=False)
     yy = sorted_f.iloc[0:1000, :]
     # print("1000 Najpopularniejszych imion zenskich: ", list(yy.index))
-    # yy.to_csv("top_1000_fem.csv")
 
     stacked_m = list(zip(arr_names_m, arr_vals_m))
     top_data_m = pd.DataFrame(stacked_m, columns=['name', 'number'])
     sorted_m = top_data_m.groupby(by='name').sum().sort_values('number', ascending=False)
     xxy = sorted_m.iloc[0:1000, :]
     # print("1000 Najpopularniejszych imion meskich: ", list(xxy.index))
-    # xxy.to_csv("top_1000_mel.csv")
     return list(yy.index), list(xxy.index)
 
 
@@ -197,22 +197,22 @@ def zad7(data, top_data):
     print('Ilosc imienia ', Mel_1st, ' w 1980: ', table['1980'][Mel_1st])
     print('Ilosc imienia ', Mel_1st, ' w 2019: ', table['2019'][Mel_1st])
 
-    arr = np.arange(1880, 2020)
+    x1 = np.arange(1880, 2020)
     fig, axs = plt.subplots(2)
 
-    axs[0].plot(arr, stacked['Harry'], 'r')
-    axs[0].plot(arr, stacked['Marilin'], 'b')
-    axs[0].plot(arr, stacked[Mel_1st], 'g')
-    axs[0].plot(arr, stacked[Fem_1st], 'k')
+    axs[0].plot(x1, stacked['Harry'], 'r')
+    axs[0].plot(x1, stacked['Marilin'], 'b')
+    axs[0].plot(x1, stacked[Mel_1st], 'g')
+    axs[0].plot(x1, stacked[Fem_1st], 'k')
     axs[0].legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2021, 20))
     axs[0].grid()
 
-    axs[1].plot(arr, stacked['freq_harr'], 'r')
-    axs[1].plot(arr, stacked['freq_mar'], 'b')
-    axs[1].plot(arr, stacked['freq_mel'], 'g')
-    axs[1].plot(arr, stacked['freq_fem'], 'k')
+    axs[1].plot(x1, stacked['freq_harr'], 'r')
+    axs[1].plot(x1, stacked['freq_mar'], 'b')
+    axs[1].plot(x1, stacked['freq_mel'], 'g')
+    axs[1].plot(x1, stacked['freq_fem'], 'k')
     axs[1].legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2021, 20))
@@ -237,10 +237,10 @@ def zad8(data):
 
     arr_f, arr_m = [], []
     ind = 0
-    arr = []
+    x1 = []
 
     for i in data['year'].unique():
-        arr.append(int(i))
+        x1.append(int(i))
         x = table3_f.loc[i]
         x = x.iloc[0:1000, :]
         arr_f.append(len(x)*100 / arr_all_f[ind])
@@ -255,12 +255,12 @@ def zad8(data):
         diff_arr.append(abs(arr_f[i] - arr_m[i]))
     ind = diff_arr.index(max(diff_arr))
 
-    print("Najwieksza roznica: ", str(arr[ind]))
+    print("Najwieksza roznica: ", str(x1[ind]))
 
     fig, axs = plt.subplots()
 
-    axs.plot(arr, arr_f, 'r')
-    axs.plot(arr, arr_m, 'b')
+    axs.plot(x1, arr_f, 'r')
+    axs.plot(x1, arr_m, 'b')
     axs.legend(['Female', "Male"], loc='upper right')
     axs.set_xlim(1880, 2020)
     axs.set_xticks(np.arange(1880, 2021, 20))
@@ -318,20 +318,20 @@ def zad9(data):
 
     # Trend
     sorted_table = final.sort_values('diff', ascending=False)
-    arr_1, arr_2, arr_3 = [], [], []
-    arr = np.arange(1880, 2020)
+    y1, y2, y3 = [], [], []
+    x1 = np.arange(1880, 2020)
 
     for i in table.index:
         trend_data_1 = data.loc[(i, 'M', sorted_table.index[0])]
         trend_data_2 = data.loc[(i, 'M', sorted_table.index[1])]
         trend_data_3 = data.loc[(i, 'M', sorted_table.index[2])]
-        arr_1.append(trend_data_1['number'])
-        arr_2.append(trend_data_2['number'])
-        arr_3.append(trend_data_3['number'])
+        y1.append(trend_data_1['number'])
+        y2.append(trend_data_2['number'])
+        y3.append(trend_data_3['number'])
 
-    ax[1].plot(arr, arr_1, 'r')
-    ax[1].plot(arr, arr_2, 'g')
-    ax[1].plot(arr, arr_3, 'b')
+    ax[1].plot(x1, y1, 'r')
+    ax[1].plot(x1, y2, 'g')
+    ax[1].plot(x1, y3, 'b')
     ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='upper right')
     ax[1].set_xlim(1880, 2020)
     ax[1].set_xticks(np.arange(1880, 2021, 20))
@@ -343,7 +343,7 @@ def zad9(data):
 def zad10(data):
     table = pd.pivot_table(data, values='number', index=['name'], columns=['sex'], aggfunc=np.sum, fill_value=0)
     table = table.loc[(table['F'] > 0) & (table['M'] > 0), :]
-    print(len(table))
+
     ind_f = table[table['F'] == max(table['F'])].index[0]
     ind_m = table[table['M'] == max(table['M'])].index[0]
 
@@ -388,10 +388,10 @@ def zad13(data):
     data_sql = pd.DataFrame(data=arr_sql, index=[f for f in range(len(arr_sql))], columns=['Year', 'Deaths'])
     data_sql = data_sql.groupby("Year").sum()
 
-    arr = np.arange(1959, 2018)
+    x = np.arange(1959, 2018)
     fig, axs = plt.subplots()
 
-    axs.plot(arr, table["number"] - list(data_sql["Deaths"]), 'g')
+    axs.plot(x, table["number"] - list(data_sql["Deaths"]), 'g')
     axs.legend(["Przyrost naturalny"], loc='upper right')
     axs.set_xlim(1959, 2018)
     axs.set_xticks(np.arange(1959, 2019, 5))
@@ -420,23 +420,22 @@ def zad14_15(data):
 
     arr_5 = []
     for i in data_sql_14.index:
-        val = 0
-        for j in range(5):
-            try:
+        if i <= 2012:
+            val = 0
+            for j in range(5):
                 val += data_sql.loc[pd.IndexSlice[i + j, j], 'Deaths']
-            except:
-                val += 0
-        arr_5.append(val)
+            arr_5.append(val)
 
-    data_sql_14['wsp_5'] = arr_5
-    data_sql_14['wsp_5'] = (list(table['number']) - data_sql_14['wsp_5']) / list(table['number'])
+    for i in range(len(arr_5)):
+        arr_5[i] = (table['number'][str(i + 1959)] - arr_5[i]) / table['number'][str(i + 1959)]
 
-    arr = np.arange(1959, 2018)
+    x1 = np.arange(1959, 2018)
+    x2 = np.arange(1959, 2013)
     fig, axs = plt.subplots()
 
-    axs.plot(arr, data_sql_14['wsp_1'], 'r')
-    axs.plot(arr, data_sql_14['wsp_5'], 'g')
-    axs.legend(["Wsp przezywalnosci w 1 roku zycia", "Wsp przezywalnosci w 5 latach zycia"], loc='upper right')
+    axs.plot(x1, data_sql_14['wsp_1'], 'r')
+    axs.plot(x2, list(arr_5), 'g')
+    axs.legend(["Wsp przezywalnosci w 1 roku zycia", "Wsp przezywalnosci w 5 latach zycia"], loc='upper left')
     axs.set_xlim(1959, 2018)
     axs.set_xticks(np.arange(1959, 2019, 5))
     axs.grid()
@@ -447,19 +446,18 @@ def zad14_15(data):
 def data_13_14_15():
     pd_list = []
 
-    with ZipFile('names.zip', 'r') as zippp:
-        for filename in zippp.namelist():
-            if filename.endswith('.txt'):
-                with zippp.open(filename) as file:
-                    frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
-                    if 2017 >= int(filename[3:-4]) >= 1959:
-                        frame['year'] = filename[3:-4]
-                        pd_list.append(frame)
+    for filename in sorted(os.listdir("names/")):
+        if filename.endswith('.txt'):
+            with open('names/' + str(filename), 'r') as file:
+                frame = pd.read_csv(file, delimiter=',', names=['name', 'sex', 'number'])
+                if 2017 >= int(filename[3:-4]) >= 1959:
+                    frame['year'] = filename[3:-4]
+                    pd_list.append(frame)
 
-                        if len(pd_list) == 2:
-                            new_frame = pd.concat([pd_list[0], pd_list[1]])
-                            pd_list.clear()
-                            pd_list.append(new_frame)
+                    if len(pd_list) == 2:
+                        new_frame = pd.concat([pd_list[0], pd_list[1]])
+                        pd_list.clear()
+                        pd_list.append(new_frame)
 
     data = pd.DataFrame(data=pd_list[0])
     arr_years = [f for f in range(len(data))]
@@ -470,7 +468,7 @@ def data_13_14_15():
 
 if __name__ == "__main__":
     start = perf_counter()
-    data_1 = zad1() # load data for further tasks
+    data_1 = zad1()  # load data for further tasks
     # print(data_1)
     # zad2(data_1)
     # zad3(data_1)
@@ -484,7 +482,7 @@ if __name__ == "__main__":
     # zad10(data_1)
     zad11(data_1)
     # zad12()
-    # data_3 = data_13_14_15() # load data for further tasks
+    # data_3 = data_13_14_15()  # load data for further tasks
     # zad13(data_3)
     # zad14_15(data_3)
     stop = perf_counter()
