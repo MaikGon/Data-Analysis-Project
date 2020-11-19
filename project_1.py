@@ -332,7 +332,7 @@ def zad9(data):
     ax[1].plot(x1, y1, 'r')
     ax[1].plot(x1, y2, 'g')
     ax[1].plot(x1, y3, 'b')
-    ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='upper right')
+    ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='leftjarz right')
     ax[1].set_xlim(1880, 2020)
     ax[1].set_xticks(np.arange(1880, 2021, 20))
     ax[1].grid()
@@ -350,18 +350,29 @@ def zad10(data):
     print('Najpopularniejsze imie zenskie: ', ind_f)
     print('Najpopularniejsze imie meskie: ', ind_m)
 
+    return table
 
-def zad11(data):
-    table = pd.pivot_table(data, values='number', index=['name'], columns=['year', 'sex'], aggfunc=np.sum, fill_value=0)
+
+def zad11(data, data_10):
+    table = data[data['name'].isin(list(data_10.index))]
+    table = pd.pivot_table(table, values='number', index=['name'], columns=['year', 'sex'], aggfunc=np.sum, fill_value=0)
+
     for i in range(1880, 2020):
-        table = table.loc[(table[(str(i), 'F')] > 0) & (table[(str(i), 'M')] > 0), :]
+        f = table[(str(i), 'F')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
+        m = table[(str(i), 'M')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
+        table[(str(i), 'F')] = f
+        table[(str(i), 'M')] = m
 
-    for i in range(1880, 2020):
-        table[(str(i), 'F')] = table[(str(i), 'F')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
-        table[(str(i), 'M')] = table[(str(i), 'M')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
+    tab1 = table.loc[:, '1880':'1920']
+    tab2 = table.loc[:, '2000':'2020']
 
-    table = table.fillna(0)
-    #print(table)
+    tab1 = tab1.mean(axis=1, level=1)
+    tab2 = tab2.mean(axis=1, level=1)
+
+    tab_1_2 = pd.merge(tab1, tab2, on='name').dropna()
+    print(tab_1_2)
+
+    # table = table.fillna(0)
 
 
 def zad12():
@@ -479,8 +490,8 @@ if __name__ == "__main__":
     # zad7(data_1, data_2)
     # zad8(data_1)
     # zad9(data_1)
-    # zad10(data_1)
-    zad11(data_1)
+    data_10 = zad10(data_1)
+    zad11(data_1, data_10)
     # zad12()
     # data_3 = data_13_14_15()  # load data for further tasks
     # zad13(data_3)
