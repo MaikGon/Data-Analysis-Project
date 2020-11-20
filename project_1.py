@@ -332,7 +332,7 @@ def zad9(data):
     ax[1].plot(x1, y1, 'r')
     ax[1].plot(x1, y2, 'g')
     ax[1].plot(x1, y3, 'b')
-    ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='leftjarz right')
+    ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='upper right')
     ax[1].set_xlim(1880, 2020)
     ax[1].set_xticks(np.arange(1880, 2021, 20))
     ax[1].grid()
@@ -354,8 +354,8 @@ def zad10(data):
 
 
 def zad11(data, data_10):
-    table = data[data['name'].isin(list(data_10.index))]
-    table = pd.pivot_table(table, values='number', index=['name'], columns=['year', 'sex'], aggfunc=np.sum, fill_value=0)
+    table1 = data[data['name'].isin(list(data_10.index))]
+    table = pd.pivot_table(table1, values='number', index=['name'], columns=['year', 'sex'], aggfunc=np.sum, fill_value=0)
 
     for i in range(1880, 2020):
         f = table[(str(i), 'F')] / (table[(str(i), 'F')] + table[(str(i), 'M')])
@@ -365,20 +365,45 @@ def zad11(data, data_10):
 
     tab1 = table.loc[:, '1880':'1920']
     tab2 = table.loc[:, '2000':'2020']
-
     tab1 = tab1.mean(axis=1, level=1)
     tab2 = tab2.mean(axis=1, level=1)
-
     tab_1_2 = pd.merge(tab1, tab2, on='name').dropna()
-    print(tab_1_2)
 
-    # table = table.fillna(0)
+    tab_1_2['diff'] = abs((tab_1_2['F_x'] - tab_1_2['F_y']) - (tab_1_2['M_x'] - tab_1_2['M_y']))
+    tab_1_2.sort_values(by='diff', inplace=True, ascending=False)
+    tab_1_2 = tab_1_2[tab_1_2['diff'] == 2.0]
+    tab_1_2.sort_index(inplace=True)
+
+    name1 = tab_1_2.index[0]
+    name2 = tab_1_2.index[1]
+
+    table_last = pd.pivot_table(table1, values='number', index=['year'], columns=['name', 'sex'], aggfunc=np.sum, fill_value=0)
+    table_last = table_last.loc[:, [name1, name2]]
+
+    first_f = table_last[(name1, 'F')]
+    first_m = table_last[(name1, 'M')]
+    sec_f = table_last[(name2, 'F')]
+    sec_m = table_last[(name2, 'M')]
+
+    x1 = np.arange(1880, 2020)
+    fig, axs = plt.subplots()
+
+    axs.plot(x1, first_f, 'r')
+    axs.plot(x1, first_m, 'g')
+    axs.plot(x1, sec_f, 'b')
+    axs.plot(x1, sec_m, 'k')
+    axs.legend(['Abell female', 'Abell male', 'Abney female', 'Abney male'], loc='upper left')
+    axs.set_xlim(1880, 2020)
+    axs.set_xticks(np.arange(1880, 2020, 10))
+    axs.grid()
+
+    plt.show()
 
 
 def zad12():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    # c.execute('DROP TABLE sql_data_12')
+    c.execute('DROP TABLE sql_data_12')
     c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
     conn.commit()
     # for row in c.execute('SELECT * FROM sql_data_12'):
@@ -480,22 +505,22 @@ def data_13_14_15():
 if __name__ == "__main__":
     start = perf_counter()
     data_1 = zad1()  # load data for further tasks
-    # print(data_1)
-    # zad2(data_1)
-    # zad3(data_1)
-    # zad4(data_1)
-    # zad5(data_1)
-    # data_2 = zad6(data_1)
-    # print(data_2)
-    # zad7(data_1, data_2)
-    # zad8(data_1)
-    # zad9(data_1)
+    print(data_1)
+    zad2(data_1)
+    zad3(data_1)
+    zad4(data_1)
+    zad5(data_1)
+    data_2 = zad6(data_1)
+    print(data_2)
+    zad7(data_1, data_2)
+    zad8(data_1)
+    zad9(data_1)
     data_10 = zad10(data_1)
     zad11(data_1, data_10)
-    # zad12()
-    # data_3 = data_13_14_15()  # load data for further tasks
-    # zad13(data_3)
-    # zad14_15(data_3)
+    zad12()
+    data_3 = data_13_14_15()  # load data for further tasks
+    zad13(data_3)
+    zad14_15(data_3)
     stop = perf_counter()
     print('Elapsed time: ', str(stop - start))
 
