@@ -65,7 +65,8 @@ def zad5(data):
     x = np.arange(1880, 2020)
 
     fig, axs = plt.subplots(2)
-    axs[0].plot(x, table2['number'], '.r')
+    fig.suptitle("Zadanie 5")
+    axs[0].plot(x, table2['number'], 'r')
     axs[0].set_title('Liczba urodzin', fontsize=12)
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2021, 20))
@@ -73,7 +74,7 @@ def zad5(data):
     axs[0].set_ylabel('Wartosc')
     axs[0].grid()
 
-    axs[1].plot(x, table2['diff'], '.b')
+    axs[1].plot(x, table2['diff'], 'b')
     axs[1].set_title('Stosunek F do M', fontsize=12)
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2021, 20))
@@ -121,14 +122,13 @@ def zad6(data):
     stacked_f = list(zip(arr_names_f, arr_vals_f))
     top_data_f = pd.DataFrame(stacked_f, columns=['name', 'number'])
     sorted_f = top_data_f.groupby(by='name').sum().sort_values('number', ascending=False)
-    yy = sorted_f.iloc[0:1000, :]
-    # print("1000 Najpopularniejszych imion zenskich: ", list(yy.index))
+    yy = sorted_f.iloc[0:1000, :]  # 1000 Najpopularniejszych imion zenskich
 
     stacked_m = list(zip(arr_names_m, arr_vals_m))
     top_data_m = pd.DataFrame(stacked_m, columns=['name', 'number'])
     sorted_m = top_data_m.groupby(by='name').sum().sort_values('number', ascending=False)
-    xxy = sorted_m.iloc[0:1000, :]
-    # print("1000 Najpopularniejszych imion meskich: ", list(xxy.index))
+    xxy = sorted_m.iloc[0:1000, :]  # 1000 Najpopularniejszych imion meskich
+
     return list(yy.index), list(xxy.index)
 
 
@@ -198,12 +198,13 @@ def zad7(data, top_data):
     print('Ilosc imienia ', Mel_1st, ' w 2019: ', table['2019'][Mel_1st])
 
     x1 = np.arange(1880, 2020)
-    fig, axs = plt.subplots(2)
-
+    fig, axs = plt.subplots(1, 2)
+    fig.suptitle("Zadanie 7")
     axs[0].plot(x1, stacked['Harry'], 'r')
     axs[0].plot(x1, stacked['Marilin'], 'b')
     axs[0].plot(x1, stacked[Mel_1st], 'g')
     axs[0].plot(x1, stacked[Fem_1st], 'k')
+    axs[0].set_title('Ilosc', fontsize=12)
     axs[0].legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2021, 20))
@@ -213,6 +214,7 @@ def zad7(data, top_data):
     axs[1].plot(x1, stacked['freq_mar'], 'b')
     axs[1].plot(x1, stacked['freq_mel'], 'g')
     axs[1].plot(x1, stacked['freq_fem'], 'k')
+    axs[1].set_title('Popularnosc', fontsize=12)
     axs[1].legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2021, 20))
@@ -258,7 +260,7 @@ def zad8(data):
     print("Najwieksza roznica: ", str(x1[ind]))
 
     fig, axs = plt.subplots()
-
+    fig.suptitle("Zadanie 8")
     axs.plot(x1, arr_f, 'r')
     axs.plot(x1, arr_m, 'b')
     axs.legend(['Female', "Male"], loc='upper right')
@@ -301,6 +303,7 @@ def zad9(data):
     print('Najwiekszy wzrost/spadek wystapil dla litery: ', str(final[final['diff'] == max(final['diff'])].index[0]))
 
     fig, ax = plt.subplots(2)
+    fig.suptitle("Zadanie 9")
     x = np.arange(len(final))
     width = 0.1
 
@@ -310,6 +313,7 @@ def zad9(data):
     ax[0].bar(x + 0.1, final['number_1960_f'], width, label='Woman 1960')
     ax[0].bar(x + 0.2, final['number_2015_m'], width, label='Man 2015')
     ax[0].bar(x + 0.3, final['number'], width, label='Woman 2015')
+    ax[0].set_title('Popularnosc liter', fontsize=12)
     ax[0].legend()
 
     ax[0].set_xticks(x)
@@ -333,6 +337,7 @@ def zad9(data):
     ax[1].plot(x1, y2, 'g')
     ax[1].plot(x1, y3, 'b')
     ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='upper right')
+    ax[1].set_title('Trend', fontsize=12)
     ax[1].set_xlim(1880, 2020)
     ax[1].set_xticks(np.arange(1880, 2021, 20))
     ax[1].grid()
@@ -386,16 +391,21 @@ def zad11(data, data_10):
     sec_m = table_last[(name2, 'M')]
 
     x1 = np.arange(1880, 2020)
-    fig, axs = plt.subplots()
+    fig, axs = plt.subplots(2)
+    fig.suptitle("Zadanie 11")
+    axs[0].plot(x1, first_f, 'r')
+    axs[0].plot(x1, first_m, 'g')
+    axs[0].legend(['Abell female', 'Abell male'], loc='upper left')
+    axs[0].set_xlim(1880, 2020)
+    axs[0].set_xticks(np.arange(1880, 2020, 10))
+    axs[0].grid()
 
-    axs.plot(x1, first_f, 'r')
-    axs.plot(x1, first_m, 'g')
-    axs.plot(x1, sec_f, 'b')
-    axs.plot(x1, sec_m, 'k')
-    axs.legend(['Abell female', 'Abell male', 'Abney female', 'Abney male'], loc='upper left')
-    axs.set_xlim(1880, 2020)
-    axs.set_xticks(np.arange(1880, 2020, 10))
-    axs.grid()
+    axs[1].plot(x1, sec_f, 'b')
+    axs[1].plot(x1, sec_m, 'k')
+    axs[1].legend(['Abney female', 'Abney male'], loc='upper left')
+    axs[1].set_xlim(1880, 2020)
+    axs[1].set_xticks(np.arange(1880, 2020, 10))
+    axs[1].grid()
 
     plt.show()
 
@@ -505,13 +515,13 @@ def data_13_14_15():
 if __name__ == "__main__":
     start = perf_counter()
     data_1 = zad1()  # load data for further tasks
-    print(data_1)
+    # print(data_1)
     zad2(data_1)
     zad3(data_1)
     zad4(data_1)
     zad5(data_1)
     data_2 = zad6(data_1)
-    print(data_2)
+    # print(data_2)
     zad7(data_1, data_2)
     zad8(data_1)
     zad9(data_1)
