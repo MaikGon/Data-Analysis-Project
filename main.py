@@ -67,19 +67,17 @@ def zad5(data):
     fig, axs = plt.subplots(2)
     fig.suptitle("Zadanie 5")
     axs[0].plot(x, table2['number'], 'r')
-    axs[0].set_title('Liczba urodzin', fontsize=12)
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2021, 20))
     axs[0].set_xlabel('Rok')
-    axs[0].set_ylabel('Wartosc')
+    axs[0].set_ylabel('Liczba urodzin')
     axs[0].grid()
 
     axs[1].plot(x, table2['diff'], 'b')
-    axs[1].set_title('Stosunek F do M', fontsize=12)
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2021, 20))
     axs[1].set_xlabel('Rok')
-    axs[1].set_ylabel('Wartosc')
+    axs[1].set_ylabel('Stosunek F do M')
     axs[1].grid()
 
     print("Rok najmniejszej roznicy urodzen: ", str(table2[abs(table2['diff'] - 1) == min(abs(table2['diff'] - 1))].index[0]))
@@ -204,23 +202,25 @@ def zad7(data, top_data):
     axs[0].plot(x1, stacked['Marilin'], 'b')
     axs[0].plot(x1, stacked[Mel_1st], 'g')
     axs[0].plot(x1, stacked[Fem_1st], 'k')
-    axs[0].set_title('Ilosc', fontsize=12)
     axs[0].legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2021, 20))
     axs[0].grid()
+    axs[0].set_xlabel('Rok')
+    axs[0].set_ylabel('Ilosc')
 
     axs[1].plot(x1, stacked['freq_harr'], 'r')
     axs[1].plot(x1, stacked['freq_mar'], 'b')
     axs[1].plot(x1, stacked['freq_mel'], 'g')
     axs[1].plot(x1, stacked['freq_fem'], 'k')
-    axs[1].set_title('Popularnosc', fontsize=12)
     axs[1].legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2021, 20))
     axs[1].grid()
+    axs[1].set_xlabel('Rok')
+    axs[1].set_ylabel('Popularnosc')
 
-    plt.subplots_adjust(hspace=0.5)
+    plt.subplots_adjust(wspace=0.5)
     plt.show()
 
 
@@ -268,6 +268,8 @@ def zad8(data):
     axs.set_xticks(np.arange(1880, 2021, 20))
     axs.yaxis.set_major_formatter(PercentFormatter(decimals=0))
     axs.grid()
+    axs.set_xlabel('Rok')
+    axs.set_ylabel('Procentowa wartosc imion z top1000')
 
     plt.show()
 
@@ -313,8 +315,11 @@ def zad9(data):
     ax[0].bar(x + 0.1, final['number_1960_f'], width, label='Woman 1960')
     ax[0].bar(x + 0.2, final['number_2015_m'], width, label='Man 2015')
     ax[0].bar(x + 0.3, final['number'], width, label='Woman 2015')
-    ax[0].set_title('Popularnosc liter', fontsize=12)
+    ax[0].set_xlabel('Litera')
+    ax[0].set_ylabel('Popularnosc')
     ax[0].legend()
+    ax[0].grid(axis='y')
+
 
     ax[0].set_xticks(x)
     ax[0].set_xticklabels(final.index)
@@ -326,9 +331,9 @@ def zad9(data):
     x1 = np.arange(1880, 2020)
 
     for i in table.index:
-        trend_data_1 = data.loc[(i, 'M', sorted_table.index[0])]
-        trend_data_2 = data.loc[(i, 'M', sorted_table.index[1])]
-        trend_data_3 = data.loc[(i, 'M', sorted_table.index[2])]
+        trend_data_1 = (data.loc[(i, 'M', sorted_table.index[0])] / data.loc[(i, 'M')].sum()) * 100
+        trend_data_2 = (data.loc[(i, 'M', sorted_table.index[1])] / data.loc[(i, 'M')].sum()) * 100
+        trend_data_3 = (data.loc[(i, 'M', sorted_table.index[2])] / data.loc[(i, 'M')].sum()) * 100
         y1.append(trend_data_1['number'])
         y2.append(trend_data_2['number'])
         y3.append(trend_data_3['number'])
@@ -337,11 +342,14 @@ def zad9(data):
     ax[1].plot(x1, y2, 'g')
     ax[1].plot(x1, y3, 'b')
     ax[1].legend([str(sorted_table.index[0]), str(sorted_table.index[1]), str(sorted_table.index[2])], loc='upper right')
-    ax[1].set_title('Trend', fontsize=12)
     ax[1].set_xlim(1880, 2020)
     ax[1].set_xticks(np.arange(1880, 2021, 20))
+    ax[1].set_ylim(0, 40)
+    ax[1].yaxis.set_major_formatter(PercentFormatter(decimals=0))
     ax[1].grid()
-
+    ax[1].set_xlabel('Rok')
+    ax[1].set_ylabel('Trend')
+    plt.subplots_adjust(hspace=0.5)
     plt.show()
 
 
@@ -399,6 +407,8 @@ def zad11(data, data_10):
     axs[0].set_xlim(1880, 2020)
     axs[0].set_xticks(np.arange(1880, 2020, 10))
     axs[0].grid()
+    axs[0].set_xlabel('Rok')
+    axs[0].set_ylabel('Ilosc wystapien imienia pierwszego')
 
     axs[1].plot(x1, sec_f, 'b')
     axs[1].plot(x1, sec_m, 'k')
@@ -406,18 +416,18 @@ def zad11(data, data_10):
     axs[1].set_xlim(1880, 2020)
     axs[1].set_xticks(np.arange(1880, 2020, 10))
     axs[1].grid()
-
+    axs[1].set_xlabel('Rok')
+    axs[1].set_ylabel('Ilosc wystapien imienia drugiego')
+    plt.subplots_adjust(hspace=0.7)
     plt.show()
 
 
 def zad12():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    c.execute('DROP TABLE sql_data_12')
+    # c.execute('DROP TABLE sql_data_12')
     c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
     conn.commit()
-    # for row in c.execute('SELECT * FROM sql_data_12'):
-        # print(row)
     conn.close()
 
 
@@ -438,10 +448,11 @@ def zad13(data):
     fig, axs = plt.subplots()
 
     axs.plot(x, table["number"] - list(data_sql["Deaths"]), 'g')
-    axs.legend(["Przyrost naturalny"], loc='upper right')
     axs.set_xlim(1959, 2018)
     axs.set_xticks(np.arange(1959, 2019, 5))
     axs.grid()
+    axs.set_xlabel('Rok')
+    axs.set_ylabel('Przyrost naturalny')
 
     plt.show()
 
@@ -485,6 +496,8 @@ def zad14_15(data):
     axs.set_xlim(1959, 2018)
     axs.set_xticks(np.arange(1959, 2019, 5))
     axs.grid()
+    axs.set_xlabel('Rok')
+    axs.set_ylabel('Wartosc wspolczynnika')
 
     plt.show()
 
