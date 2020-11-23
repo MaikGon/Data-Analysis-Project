@@ -424,7 +424,7 @@ def zad11(data, data_10):
 def zad12():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    c.execute('DROP TABLE sql_data_12')
+    # c.execute('DROP TABLE sql_data_12')
     c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
     conn.commit()
     conn.close()
