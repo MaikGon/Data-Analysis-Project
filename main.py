@@ -33,7 +33,7 @@ def zad1():
 
 
 def zad2(data):
-    print("Ilosc unikalnych imion: ", str(len(data['name'].unique())))
+    print("Ilosc unikalnych imion: ", str(len(data['name'].unique())), '\n')
 
 
 def zad3(data):
@@ -41,7 +41,7 @@ def zad3(data):
     F = table[table['F'] != 0].count()['F']
     M = table[table['M'] != 0].count()['M']
     print("Ilosc unikalnych imion zenskich: ", str(F))
-    print("Ilosc unikalnych imion meskich: ", str(M))
+    print("Ilosc unikalnych imion meskich: ", str(M), '\n')
 
 
 def zad4(data):
@@ -54,7 +54,7 @@ def zad4(data):
     data['frequency_female'] = (data_1[data_1["sex"] == "F"]['number_x'] / data_1['number_y']).fillna(0.0)
     data['frequency_male'] = (data_1[data_1["sex"] == "M"]['number_x'] / data_1['number']).fillna(0.0)
 
-    print(data)
+    print(data, '\n')
 
 
 def zad5(data):
@@ -81,10 +81,10 @@ def zad5(data):
     axs[1].grid()
 
     print("Rok najmniejszej roznicy urodzen: ", str(table2[abs(table2['diff'] - 1) == min(abs(table2['diff'] - 1))].index[0]))
-    print("Rok najwiekszej roznicy urodzen: ", str(table2[table2['diff'] == max(table2['diff'])].index[0]))
+    print("Rok najwiekszej roznicy urodzen: ", str(table2[table2['diff'] == max(table2['diff'])].index[0]), '\n')
 
     plt.subplots_adjust(hspace=0.5)
-    plt.show()
+    #plt.show()
 
 
 def zad6(data):
@@ -121,11 +121,13 @@ def zad6(data):
     top_data_f = pd.DataFrame(stacked_f, columns=['name', 'number'])
     sorted_f = top_data_f.groupby(by='name').sum().sort_values('number', ascending=False)
     yy = sorted_f.iloc[0:1000, :]  # 1000 Najpopularniejszych imion zenskich
+    print('Top 1000 imion zenskich: \n', yy)
 
     stacked_m = list(zip(arr_names_m, arr_vals_m))
     top_data_m = pd.DataFrame(stacked_m, columns=['name', 'number'])
     sorted_m = top_data_m.groupby(by='name').sum().sort_values('number', ascending=False)
     xxy = sorted_m.iloc[0:1000, :]  # 1000 Najpopularniejszych imion meskich
+    print('Top 1000 imion meskich: \n', xxy)
 
     return list(yy.index), list(xxy.index)
 
@@ -193,7 +195,7 @@ def zad7(data, top_data):
     print('Ilosc imienia ', Fem_1st, ' w 2019: ', table['2019'][Fem_1st])
     print('Ilosc imienia ', Mel_1st, ' w 1940: ', table['1940'][Mel_1st])
     print('Ilosc imienia ', Mel_1st, ' w 1980: ', table['1980'][Mel_1st])
-    print('Ilosc imienia ', Mel_1st, ' w 2019: ', table['2019'][Mel_1st])
+    print('Ilosc imienia ', Mel_1st, ' w 2019: ', table['2019'][Mel_1st], '\n')
 
     x1 = np.arange(1880, 2020)
     fig, axs = plt.subplots()
@@ -218,7 +220,7 @@ def zad7(data, top_data):
     ax2.legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     ax2.set_ylabel('Popularnosc')
 
-    plt.show()
+    #plt.show()
 
 
 def zad8(data):
@@ -254,7 +256,7 @@ def zad8(data):
         diff_arr.append(abs(arr_f[i] - arr_m[i]))
     ind = diff_arr.index(max(diff_arr))
 
-    print("Najwieksza roznica: ", str(x1[ind]))
+    print("Najwieksza roznica: ", str(x1[ind]), '\n')
 
     fig, axs = plt.subplots()
     fig.suptitle("Zadanie 8")
@@ -268,7 +270,7 @@ def zad8(data):
     axs.set_xlabel('Rok')
     axs.set_ylabel('Procentowa wartosc imion z top1000')
 
-    plt.show()
+    #plt.show()
 
 
 def zad9(data):
@@ -299,7 +301,7 @@ def zad9(data):
 
     final['diff'] = abs(final['number_2015_m'] - final['number_1910_m'])
 
-    print('Najwiekszy wzrost/spadek wystapil dla litery: ', str(final[final['diff'] == max(final['diff'])].index[0]))
+    print('Najwiekszy wzrost/spadek wystapil dla litery: ', str(final[final['diff'] == max(final['diff'])].index[0]), '\n')
 
     fig, ax = plt.subplots(2)
     fig.suptitle("Zadanie 9")
@@ -347,7 +349,7 @@ def zad9(data):
     ax[1].set_xlabel('Rok')
     ax[1].set_ylabel('Trend')
     plt.subplots_adjust(hspace=0.5)
-    plt.show()
+    #plt.show()
 
 
 def zad10(data):
@@ -358,7 +360,7 @@ def zad10(data):
     ind_m = table[table['M'] == max(table['M'])].index[0]
 
     print('Najpopularniejsze imie zenskie: ', ind_f)
-    print('Najpopularniejsze imie meskie: ', ind_m)
+    print('Najpopularniejsze imie meskie: ', ind_m, '\n')
 
     return table
 
@@ -416,13 +418,13 @@ def zad11(data, data_10):
     axs[1].set_xlabel('Rok')
     axs[1].set_ylabel('Ilosc wystapien imienia drugiego')
     plt.subplots_adjust(hspace=0.7)
-    plt.show()
+    #plt.show()
 
 
 def zad12():
     conn = sqlite3.connect("USA_ltper_1x1.sqlite")
     c = conn.cursor()
-    # c.execute('DROP TABLE sql_data_12')
+    c.execute('DROP TABLE sql_data_12')
     c.execute('CREATE TABLE sql_data_12 AS SELECT * FROM USA_fltper_1x1 UNION SELECT * FROM USA_mltper_1x1;')
     conn.commit()
     conn.close()
@@ -445,13 +447,14 @@ def zad13(data):
     fig, axs = plt.subplots()
 
     axs.plot(x, table["number"] - list(data_sql["Deaths"]), 'g')
+    fig.suptitle("Zadanie 13")
     axs.set_xlim(1959, 2018)
     axs.set_xticks(np.arange(1959, 2019, 5))
     axs.grid()
     axs.set_xlabel('Rok')
     axs.set_ylabel('Przyrost naturalny')
 
-    plt.show()
+    #plt.show()
 
 
 def zad14_15(data):
@@ -490,13 +493,14 @@ def zad14_15(data):
     axs.plot(x1, data_sql_14['wsp_1'], 'r')
     axs.plot(x2, list(arr_5), 'g')
     axs.legend(["Wsp przezywalnosci w 1 roku zycia", "Wsp przezywalnosci w 5 latach zycia"], loc='upper left')
+    fig.suptitle("Zadanie 14, 15")
     axs.set_xlim(1959, 2018)
     axs.set_xticks(np.arange(1959, 2019, 5))
     axs.grid()
     axs.set_xlabel('Rok')
     axs.set_ylabel('Wartosc wspolczynnika')
 
-    plt.show()
+    #plt.show()
 
 
 def data_13_14_15():
@@ -526,21 +530,31 @@ if __name__ == "__main__":
     start = perf_counter()
     data_1 = zad1()  # load data for further tasks
     # print(data_1)
+    print('Zadanie 2')
     zad2(data_1)
+    print('Zadanie 3')
     zad3(data_1)
+    print('Zadanie 4')
     zad4(data_1)
+    print('Zadanie 5')
     zad5(data_1)
+    print('Zadanie 6')
     data_2 = zad6(data_1)
     # print(data_2)
+    print('Zadanie 7')
     zad7(data_1, data_2)
+    print('Zadanie 8')
     zad8(data_1)
+    print('Zadanie 9')
     zad9(data_1)
+    print('Zadanie 10')
     data_10 = zad10(data_1)
     zad11(data_1, data_10)
     zad12()
     data_3 = data_13_14_15()  # load data for further tasks
     zad13(data_3)
     zad14_15(data_3)
+    plt.show()
     stop = perf_counter()
     print('Elapsed time: ', str(stop - start))
 
