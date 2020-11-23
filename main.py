@@ -3,8 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
 from matplotlib.ticker import PercentFormatter
-from zipfile import ZipFile
-from time import perf_counter
 import os
 
 
@@ -84,7 +82,7 @@ def zad5(data):
     print("Rok najwiekszej roznicy urodzen: ", str(table2[table2['diff'] == max(table2['diff'])].index[0]), '\n')
 
     plt.subplots_adjust(hspace=0.5)
-    #plt.show()
+    # plt.show()
 
 
 def zad6(data):
@@ -200,27 +198,28 @@ def zad7(data, top_data):
     x1 = np.arange(1880, 2020)
     fig, axs = plt.subplots()
     fig.suptitle("Zadanie 7")
-    axs.plot(x1, stacked['Harry'], 'r')
-    axs.plot(x1, stacked['Marilin'], 'b')
-    axs.plot(x1, stacked[Mel_1st], 'g')
-    axs.plot(x1, stacked[Fem_1st], 'k')
-    axs.legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper left')
+    axs.plot(x1, stacked['Harry'], '.r')
+    axs.plot(x1, stacked['Marilin'], 'xr')
+    axs.plot(x1, stacked[Mel_1st], '-r')
+    axs.plot(x1, stacked[Fem_1st], '.--r')
+    axs.legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
     axs.set_xlim(1880, 2020)
     axs.set_xticks(np.arange(1880, 2021, 20))
     axs.grid()
     axs.set_xlabel('Rok')
-    axs.set_ylabel('Ilosc')
+    axs.set_ylabel('Ilosc', color='r')
+    axs.tick_params(axis='y', labelcolor='r')
 
     ax2 = axs.twinx()
 
-    ax2.plot(x1, stacked['freq_harr'], '.c')
-    ax2.plot(x1, stacked['freq_mar'], '.b')
-    ax2.plot(x1, stacked['freq_mel'], '.y')
-    ax2.plot(x1, stacked['freq_fem'], '.m')
-    ax2.legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='upper right')
-    ax2.set_ylabel('Popularnosc')
-
-    #plt.show()
+    ax2.plot(x1, stacked['freq_harr'], '.g')
+    ax2.plot(x1, stacked['freq_mar'], 'xg')
+    ax2.plot(x1, stacked['freq_mel'], '-g')
+    ax2.plot(x1, stacked['freq_fem'], '.--g')
+    ax2.legend(['Harry', 'Marilyn', Mel_1st, Fem_1st], loc='center right')
+    ax2.set_ylabel('Popularnosc', color='g')
+    ax2.tick_params(axis='y', labelcolor='g')
+    # plt.show()
 
 
 def zad8(data):
@@ -269,8 +268,7 @@ def zad8(data):
     axs.grid()
     axs.set_xlabel('Rok')
     axs.set_ylabel('Procentowa wartosc imion z top1000')
-
-    #plt.show()
+    # plt.show()
 
 
 def zad9(data):
@@ -319,7 +317,6 @@ def zad9(data):
     ax[0].legend()
     ax[0].grid(axis='y')
 
-
     ax[0].set_xticks(x)
     ax[0].set_xticklabels(final.index)
     ax[0].tick_params(axis='x')
@@ -349,7 +346,7 @@ def zad9(data):
     ax[1].set_xlabel('Rok')
     ax[1].set_ylabel('Trend')
     plt.subplots_adjust(hspace=0.5)
-    #plt.show()
+    # plt.show()
 
 
 def zad10(data):
@@ -397,6 +394,7 @@ def zad11(data, data_10):
     sec_f = table_last[(name2, 'F')]
     sec_m = table_last[(name2, 'M')]
 
+    print('Dwa najpopularniejsze imiona to kolejno: ', name1, ' oraz ', name2, '\n')
     x1 = np.arange(1880, 2020)
     fig, axs = plt.subplots(2)
     fig.suptitle("Zadanie 11")
@@ -418,7 +416,7 @@ def zad11(data, data_10):
     axs[1].set_xlabel('Rok')
     axs[1].set_ylabel('Ilosc wystapien imienia drugiego')
     plt.subplots_adjust(hspace=0.7)
-    #plt.show()
+    # plt.show()
 
 
 def zad12():
@@ -454,7 +452,7 @@ def zad13(data):
     axs.set_xlabel('Rok')
     axs.set_ylabel('Przyrost naturalny')
 
-    #plt.show()
+    # plt.show()
 
 
 def zad14_15(data):
@@ -499,8 +497,7 @@ def zad14_15(data):
     axs.grid()
     axs.set_xlabel('Rok')
     axs.set_ylabel('Wartosc wspolczynnika')
-
-    #plt.show()
+    # plt.show()
 
 
 def data_13_14_15():
@@ -527,7 +524,6 @@ def data_13_14_15():
 
 
 if __name__ == "__main__":
-    start = perf_counter()
     data_1 = zad1()  # load data for further tasks
     # print(data_1)
     print('Zadanie 2')
@@ -549,12 +545,11 @@ if __name__ == "__main__":
     zad9(data_1)
     print('Zadanie 10')
     data_10 = zad10(data_1)
+    print('Zadanie 11')
     zad11(data_1, data_10)
     zad12()
     data_3 = data_13_14_15()  # load data for further tasks
     zad13(data_3)
     zad14_15(data_3)
     plt.show()
-    stop = perf_counter()
-    print('Elapsed time: ', str(stop - start))
 
